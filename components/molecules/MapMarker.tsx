@@ -1,13 +1,7 @@
 import React from "react";
 import { Marker } from "react-native-maps";
 import MapCallout from "../atoms/MapCallout";
-
-export type TMarker = {
-  title: string;
-  coordinate: { latitude: number; longitude: number };
-  description: string;
-  imgUrl?: string;
-};
+import { TMarker } from "../../types";
 
 interface IMapMarker {
   marker: TMarker;
@@ -16,7 +10,7 @@ interface IMapMarker {
 
 const MapMarker = ({ marker, onPress }: IMapMarker) => (
   <Marker coordinate={marker.coordinate} onPress={() => onPress && onPress()}>
-    <MapCallout title={marker.title} description={marker.description} />
+    <MapCallout title={marker.title} subtitle={marker.subtitle} />
   </Marker>
 );
 

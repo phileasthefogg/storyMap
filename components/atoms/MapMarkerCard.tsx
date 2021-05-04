@@ -1,21 +1,20 @@
 import React, { useState, useEffect } from "react";
 import { TouchableWithoutFeedback, Image } from "react-native";
 import styled from "styled-components";
-import { theme } from "../../constants/theme";
+import { useNavigation, useRoute } from "@react-navigation/native";
 import { View as TView, Text as TText } from "../Themed";
-import { TMarker } from "../molecules/MapMarker";
+import { TMarker } from "../../types";
+import { useDispatch } from "react-redux";
+import { SharedElement } from "react-navigation-shared-element";
 
 interface IMapMarkerCard {
   item: TMarker;
-  itemIdx: number;
   handlePress: () => void;
   isFocused: boolean;
-  listRef: any;
 }
 
 const Wrapper = styled(TView)<{ expanded: boolean }>`
-  width: ${({ expanded, theme }) =>
-    `${expanded ? theme.layout.width - 20 : theme.layout.width / 2}px`};
+  width: ${({ theme }) => `${theme.layout.width / 2}px`};
   height: ${({ expanded, theme }) =>
     `${
       expanded ? theme.layout.cardHeightExpand : theme.layout.cardHeightCollapse
@@ -27,62 +26,69 @@ const Wrapper = styled(TView)<{ expanded: boolean }>`
   border-radius: 5px;
   border-width: 1px;
 `;
-const Header = styled(TText)`
+const Header = styled(TView)`
+  display: flex;
+  flex-direction: column;
+`;
+const Title = styled(TText)`
   font-size: 16px;
   font-weight: bold;
 `;
 const Subtitle = styled(TText)`
-  font-size: 14px;
+  font-size: 11px;
   font-style: italic;
 `;
+const LearnMore = styled(TText)`
+  color: blue;
+`;
 
-const MapMarkerCard = ({
-  item,
-  handlePress,
-  isFocused,
-  itemIdx,
-  listRef,
-}: IMapMarkerCard) => {
+const MapMarkerCard = ({ item, handlePress, isFocused }: IMapMarkerCard) => {
   const [expanded, setExpanded] = useState<boolean>(false);
+  const navigation = useNavigation();
+  const dispatch = useDispatch();
   return (
-    <TouchableWithoutFeedback
-      onPress={() => {
-        handlePress && handlePress();
-        if (isFocused) {
-          if (!expanded) {
-            setExpanded(true);
-            listRef.current &&
-              listRef.current.scrollToOffset({
-                offset: itemIdx * (theme.layout.width / 2 + 10),
-              });
-          } else {
-            setExpanded(false);
-            listRef.current &&
-              listRef.current.scrollToOffset({
-                offset:
-                  (theme.layout.width / 2 + 10) * itemIdx -
-                  theme.layout.mapMargin * 5,
-              });
-          }
-        }
-      }}
-    >
+    <SharedElement id={`shared-tile-${item.title}`}>
       <Wrapper expanded={expanded}>
-        <Header>{item.title}</Header>
-
-        <TText style={{ fontSize: 10 }}>
-          {item.coordinate.latitude + ", " + item.coordinate.longitude}
-        </TText>
-
-        <Image
-          style={{ flex: 1 }}
-          source={{
-            uri: item.imgUrl,
+        <TouchableWithoutFeedback
+          onPress={() => {
+            handlePress && handlePress();
+            if (isFocused) {
+              if (!expanded) {
+                setExpanded(true);
+              } else {
+                setExpanded(false);
+              }
+            }
           }}
-        />
-        {expanded ? <Subtitle>{item.description}</Subtitle> : null}
+        >
+          <Header>
+            <Title>{item.title}</Title>
+            <Subtitle>{item.description}</Subtitle>
+          </Header>
+        </TouchableWithoutFeedback>
+        <SharedElement id={`shared-photo-${item.id}`} style={{ flex: 1 }}>
+          <Image
+            style={{ flex: 1 }}
+            source={{
+              uri: item.imgUrl,
+            }}
+          />
+        </SharedElement>
+        {expanded ? (
+          <TouchableWithoutFeedback
+            onPress={() => {
+              dispatch({ type: "SET_PLACE_DETAIL", payload: item });
+              navigation.navigate("Detail", {
+                photo: `shared-photo-${item.id}`,
+                tile: `shared-tile-${item.title}`,
+              });
+            }}
+          >
+            <LearnMore>{"Learn More"}</LearnMore>
+          </TouchableWithoutFeedback>
+        ) : null}
       </Wrapper>
-    </TouchableWithoutFeedback>
+    </SharedElement>
   );
 };
 

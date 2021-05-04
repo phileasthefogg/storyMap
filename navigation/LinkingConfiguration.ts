@@ -24,6 +24,11 @@ export default {
           },
         },
       },
+      Detail: {
+        screens: {
+          DetailScreen: "Detail",
+        },
+      },
       NotFound: "*",
     },
   },

@@ -4,14 +4,14 @@ import { View as TView, Text as TText } from "../Themed";
 
 interface IMapCallout {
   title: string;
-  description?: string;
+  subtitle?: string;
 }
 
-const MapCallout = ({ title, description }: IMapCallout) => (
+const MapCallout = ({ title, subtitle }: IMapCallout) => (
   <Callout>
     <TView>
       <TText>{title}</TText>
-      <TText>{description}</TText>
+      <TText>{subtitle}</TText>
     </TView>
   </Callout>
 );

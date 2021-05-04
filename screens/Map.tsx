@@ -1,10 +1,11 @@
 import React, { useState, useRef } from "react";
-import { StyleSheet, TouchableOpacity } from "react-native";
+import { StyleSheet, TouchableOpacity, Modal, Alert } from "react-native";
 import Layout from "../constants/Layout";
 import { View, Text } from "../components/Themed";
 import MapView from "react-native-maps";
 import TestMarkers from "../constants/TestMarkers";
 
+import MapMarkerForm from "../components/molecules/MapMarkerForm";
 import MapMarkerList from "../components/molecules/MapMarkerList";
 import ZoomControl from "../components/molecules/ZoomControl";
 import MapMarker from "../components/molecules/MapMarker";
@@ -13,7 +14,7 @@ const ASPECT_RATIO = Layout.window.width / Layout.window.height;
 const LATITUDE_DELTA = 0.0922;
 const LONGITUDE_DELTA = LATITUDE_DELTA * ASPECT_RATIO;
 
-export default function Map({ provider }) {
+export default function Map({ route, navigation, provider }) {
   const mapRef = useRef(null);
   const [region, setRegion] = useState({
     latitude: 37.79488483598235, // initial location latitude
@@ -23,8 +24,9 @@ export default function Map({ provider }) {
   });
   const [zoom, setZoom] = useState(17);
   const [markers, setMarkers] = useState<any[]>(TestMarkers);
-  const [focusedMarker, setFocusedMarker] = useState(0);
+  // const [focusedMarker, setFocusedMarker] = useState(0);
   const [showList, setShowList] = useState(true);
+  const [modalVisible, setModalVisible] = useState(false);
 
   const zoomToPoint = (coordinate) => {
     mapRef.current.animateCamera({ center: { ...coordinate }, zoom: 19 }, 500);
@@ -42,6 +44,8 @@ export default function Map({ provider }) {
       id: markers.length,
     };
     setMarkers((marks) => [...marks, newMarker]);
+    zoomToPoint(coordinate);
+    setModalVisible(true);
   };
   const handleZoom = (inc: 1 | -1) => {
     const newZoom = zoom + inc;
@@ -51,42 +55,49 @@ export default function Map({ provider }) {
 
   const handlePOIPress = (ind: number) => {
     zoomToPoint(markers[ind].coordinate);
-    setFocusedMarker(ind);
+    // setFocusedMarker(ind);
   };
 
   return (
     <View style={styles.map}>
-      <View
-        style={{
-          height: 45,
-          width: 45,
-          borderWidth: 0.5,
-          borderColor: "grey",
-          borderRadius: 5,
-          position: "absolute",
-          top: 12,
-          left: 12,
-          zIndex: 10,
-          alignItems: "center",
-          justifyContent: "center",
-        }}
-      >
-        <TouchableOpacity onPress={() => setShowList((cur) => !cur)}>
-          <Text>{showList ? "Hide" : "Show"}</Text>
-        </TouchableOpacity>
-      </View>
+      {modalVisible ? null : (
+        <View
+          style={{
+            height: 45,
+            width: 45,
+            borderWidth: 0.5,
+            borderColor: "grey",
+            borderRadius: 5,
+            position: "absolute",
+            top: 12,
+            left: 12,
+            zIndex: 10,
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          <TouchableOpacity onPress={() => setShowList((cur) => !cur)}>
+            <Text>{showList ? "Hide" : "Show"}</Text>
+          </TouchableOpacity>
+        </View>
+      )}
       <ZoomControl setZoom={handleZoom} />
       {showList ? (
         <MapMarkerList
-          markerIndex={focusedMarker}
+          // markerIndex={focusedMarker}
           markers={markers}
           panToMarker={handlePOIPress}
+          navigation={navigation}
         />
       ) : null}
+      <MapMarkerForm
+        visibility={modalVisible}
+        setVisibility={setModalVisible}
+      />
       <MapView
         ref={mapRef}
         provider={provider}
-        style={styles.map}
+        style={modalVisible ? { width: "100%", height: "50%" } : styles.map}
         initialCamera={{
           center: { latitude: region.latitude, longitude: region.longitude },
           zoom: 17,

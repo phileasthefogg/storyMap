@@ -8,6 +8,7 @@ interface IMapMarkerList {
   markers: any[];
   markerIndex?: number;
   panToMarker?: (i: number) => void;
+  navigation: any;
 }
 
 const List = styled.FlatList<{ expanded: boolean }>`
@@ -23,13 +24,14 @@ const List = styled.FlatList<{ expanded: boolean }>`
 `;
 
 const MapMarkerList = ({
-  markerIndex = 0,
   markers,
   panToMarker,
+  navigation,
 }: IMapMarkerList) => {
   const listRef = useRef(null);
   const [isExpanded, setExpanded] = useState(false);
   const [offset, setOffset] = useState(0);
+  const [markerIndex, setmarkerIndex] = useState(0);
 
   useEffect(() => {
     isExpanded && listRef.current.scrollToOffset(offset - layout.width / 2);
@@ -47,12 +49,12 @@ const MapMarkerList = ({
 
   const scrollToInd = (ind) => {
     panToMarker && panToMarker(ind);
+    setmarkerIndex(ind);
   };
   const renderTile = ({ item, index }) => {
     return (
       <MapMarkerCard
         item={item}
-        itemIdx={index}
         handlePress={
           () =>
             isExpanded && index === markerIndex
@@ -62,7 +64,6 @@ const MapMarkerList = ({
               : scrollToInd(index) //scroll to an unfocused card
         }
         isFocused={index === markerIndex}
-        listRef={listRef}
       />
     );
   };

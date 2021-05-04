@@ -6,12 +6,15 @@
 import { Ionicons } from "@expo/vector-icons";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { createStackNavigator } from "@react-navigation/stack";
+import { createSharedElementStackNavigator } from "react-navigation-shared-element";
 import * as React from "react";
 
 import Colors from "../constants/Colors";
 import useColorScheme from "../hooks/useColorScheme";
 import Map from "../screens/Map";
-import TabTwoScreen from "../screens/TabTwoScreen";
+import Library from "../screens/Library";
+import Detail from "../screens/Detail";
+
 import { BottomTabParamList, TabOneParamList, TabTwoParamList } from "../types";
 
 const BottomTab = createBottomTabNavigator<BottomTabParamList>();
@@ -34,7 +37,7 @@ export default function BottomTabNavigator() {
         }}
       />
       <BottomTab.Screen
-        name="TabTwo"
+        name="Library"
         component={TabTwoNavigator}
         options={{
           tabBarIcon: ({ color }) => (
@@ -57,7 +60,7 @@ function TabBarIcon(props: {
 
 // Each tab has its own navigation stack, you can read more about this pattern here:
 // https://reactnavigation.org/docs/tab-based-navigation#a-stack-navigator-for-each-tab
-const TabOneStack = createStackNavigator<TabOneParamList>();
+const TabOneStack = createSharedElementStackNavigator<TabOneParamList>();
 
 function TabOneNavigator() {
   return (
@@ -67,19 +70,49 @@ function TabOneNavigator() {
         component={Map}
         options={{ headerTitle: "Story Map" }}
       />
+      <TabOneStack.Screen
+        name="Detail"
+        component={Detail}
+        options={{
+          headerTitle: "Detail",
+          title: "Detail",
+        }}
+        sharedElementsConfig={(route, otherRoute, showing) => {
+          const { photo, tile } = route.params;
+          return [
+            { id: tile, animation: "fade" },
+            { id: photo, animation: "fade" },
+          ];
+        }}
+      />
     </TabOneStack.Navigator>
   );
 }
 
-const TabTwoStack = createStackNavigator<TabTwoParamList>();
+const TabTwoStack = createSharedElementStackNavigator<TabTwoParamList>();
 
 function TabTwoNavigator() {
   return (
     <TabTwoStack.Navigator>
       <TabTwoStack.Screen
-        name="TabTwoScreen"
-        component={TabTwoScreen}
-        options={{ headerTitle: "Tab Two Title" }}
+        name="Library"
+        component={Library}
+        options={{ headerTitle: "Library" }}
+      />
+      <TabTwoStack.Screen
+        name="Detail"
+        component={Detail}
+        options={({ route }) => ({
+          headerTitle: "Detail",
+          title: "Detail",
+        })}
+        sharedElementsConfig={(route, otherRoute, showing) => {
+          const { photo, tile } = route.params;
+          return [
+            { id: tile, animation: "fade" },
+            { id: photo, animation: "fade" },
+          ];
+        }}
       />
     </TabTwoStack.Navigator>
   );
