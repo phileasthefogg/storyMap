@@ -1,5 +1,5 @@
 import { TMarker } from "../types";
-
+import TestMarkers from "../constants/TestMarkers";
 type TPlace = TMarker | null;
 
 export type TOnboardingAction =
@@ -12,7 +12,7 @@ export interface IPlaceReducerState {
 }
 
 const initialState = {
-  places: [],
+  places: TestMarkers,
   placeDetail: null,
 };
 

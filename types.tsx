@@ -28,8 +28,8 @@ export type TMarker = {
   id: number;
   coordinate: { latitude: number; longitude: number };
   subtitle?: string;
-  category?: "Food" | "History" | "Culture" | "Parks";
-  description: string;
+  category?: "Food" | "History" | "Culture" | "Parks" | string;
+  description?: string;
   imgUrl?: string;
 };
 

@@ -4,7 +4,6 @@ import styled from "styled-components";
 
 import TestMarkers from "../constants/TestMarkers";
 import { Text, View } from "../components/Themed";
-import { TMarker } from "../types";
 
 import LibraryStoryCard from "../components/atoms/LibraryStoryCard";
 

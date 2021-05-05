@@ -1,17 +1,13 @@
 import React, { useState, useEffect, useRef } from "react";
 import { FlatList } from "react-native";
+import { useDispatch, useSelector } from "react-redux";
+import { mapSelector, placeSelector } from "../../reducers/rootReducer";
 import styled from "styled-components";
 import MapMarkerCard from "../atoms/MapMarkerCard";
 import { layout, theme } from "../../constants/theme";
+import MapButton from "../atoms/MapButton";
 
-interface IMapMarkerList {
-  markers: any[];
-  markerIndex?: number;
-  panToMarker?: (i: number) => void;
-  navigation: any;
-}
-
-const List = styled.FlatList<{ expanded: boolean }>`
+const List = styled(FlatList)<{ expanded: boolean }>`
   z-index: 5;
   height: ${({ expanded, theme }) =>
     `${
@@ -23,33 +19,30 @@ const List = styled.FlatList<{ expanded: boolean }>`
   bottom: 0;
 `;
 
-const MapMarkerList = ({
-  markers,
-  panToMarker,
-  navigation,
-}: IMapMarkerList) => {
+const MapMarkerList = () => {
+  const dispatch = useDispatch();
+  const map = useSelector(mapSelector);
+  const places = useSelector(placeSelector);
   const listRef = useRef(null);
-  const [isExpanded, setExpanded] = useState(false);
   const [offset, setOffset] = useState(0);
-  const [markerIndex, setmarkerIndex] = useState(0);
 
   useEffect(() => {
-    isExpanded && listRef.current.scrollToOffset(offset - layout.width / 2);
+    map.listExpanded &&
+      listRef.current.scrollToOffset(offset - layout.width / 2);
   }, [offset]);
 
   useEffect(() => {
     const newOffset =
-      (theme.layout.width / 2 + 10) * markerIndex - theme.layout.mapMargin * 5;
-    listRef &&
-      listRef.current.scrollToOffset({
-        offset: newOffset,
-      }) &&
-      setOffset(newOffset);
-  }, [markerIndex]);
+      (theme.layout.width / 2 + 10) * map.focusIndex -
+      theme.layout.mapMargin * 5;
+    // listRef &&
+    listRef.current?.scrollToOffset({
+      offset: newOffset,
+    }) && setOffset(newOffset);
+  }, [map.focusIndex]);
 
   const scrollToInd = (ind) => {
-    panToMarker && panToMarker(ind);
-    setmarkerIndex(ind);
+    dispatch({ type: "SET_FOCUS_IND", payload: ind });
   };
   const renderTile = ({ item, index }) => {
     return (
@@ -57,27 +50,40 @@ const MapMarkerList = ({
         item={item}
         handlePress={
           () =>
-            isExpanded && index === markerIndex
-              ? setExpanded(false) //collapse focused card
-              : index === markerIndex
-              ? setExpanded(true) //expand focused card
+            map.listExpanded && index === map.focusIndex
+              ? dispatch({ type: "SET_LIST_EXPAND", payload: false }) //collapse focused card
+              : index === map.focusIndex
+              ? dispatch({ type: "SET_LIST_EXPAND", payload: true }) //expand focused card
               : scrollToInd(index) //scroll to an unfocused card
         }
-        isFocused={index === markerIndex}
+        isFocused={index === map.focusIndex}
       />
     );
   };
 
   return (
-    <List
-      ref={listRef}
-      renderItem={(e) => renderTile({ item: e.item, index: e.index })}
-      keyExtractor={(item: any, index: number) => index.toString()}
-      data={markers}
-      horizontal={true}
-      expanded={isExpanded}
-      contentContainerStyle={{ display: "flex", alignItems: "flex-end" }}
-    />
+    <>
+      <MapButton
+        onPress={() => {
+          dispatch({
+            type: "SET_LIST_VISIBILITY",
+            payload: !map.listVisible,
+          });
+        }}
+        text={map.listVisible ? "Hide" : "Show"}
+      />
+      {map.listVisible ? (
+        <List
+          ref={listRef}
+          renderItem={(e) => renderTile({ item: e.item, index: e.index })}
+          keyExtractor={(item: any, index: number) => index.toString()}
+          data={places.places}
+          horizontal={true}
+          expanded={map.listExpanded}
+          contentContainerStyle={{ display: "flex", alignItems: "flex-end" }}
+        />
+      ) : null}
+    </>
   );
 };
 

@@ -12,7 +12,7 @@ const Wrapper = styled.View`
   display: flex;
   justify-content: space-between;
   top: ${({ theme }) => theme.layout.mapMargin}px;
-  right: 8px;
+  right: 0px;
   background-color: transparent;
   height: 14%;
   width: 15%;

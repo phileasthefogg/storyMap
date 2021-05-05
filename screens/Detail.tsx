@@ -1,17 +1,10 @@
 import React, { useEffect } from "react";
 import styled from "styled-components";
 import { View as TView, Text as TText } from "../components/Themed";
-import {
-  Image,
-  TouchableOpacity,
-  StatusBar,
-  ScrollView,
-  Button,
-} from "react-native";
+import { Image, StatusBar, ScrollView, Button } from "react-native";
 import { useSelector } from "react-redux";
 import { placeSelector } from "../reducers/rootReducer";
 import { SharedElement } from "react-navigation-shared-element";
-import { useNavigationState } from "@react-navigation/native";
 import { DropDownHolder } from "../types";
 const Wrapper = styled(TView)`
   width: 100%;
@@ -45,7 +38,6 @@ const Footer = styled(TView)`
 
 const Detail = ({ route, navigation }) => {
   const places = useSelector(placeSelector);
-  const navState = useNavigationState((state) => state);
   useEffect(() => {
     navigation.setOptions({ headerTitle: places.placeDetail.title });
   }, [places.placeDetail]);

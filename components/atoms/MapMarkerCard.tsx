@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { TouchableWithoutFeedback, Image } from "react-native";
 import styled from "styled-components";
-import { useNavigation, useRoute } from "@react-navigation/native";
+import { useNavigation } from "@react-navigation/native";
 import { View as TView, Text as TText } from "../Themed";
 import { TMarker } from "../../types";
 import { useDispatch } from "react-redux";

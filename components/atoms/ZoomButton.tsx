@@ -21,8 +21,7 @@ const ZoomButton = ({ onPress, text }: IZoomButton) => (
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        left: Layout.mapMargin,
-        bottom: Layout.mapMargin,
+        // left: Layout.mapMargin,
       }}
     >
       <TText style={{ fontSize: 15 }}>{text}</TText>
