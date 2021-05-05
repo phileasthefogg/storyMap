@@ -14,7 +14,7 @@ const ASPECT_RATIO = Layout.window.width / Layout.window.height;
 const LATITUDE_DELTA = 0.0922;
 const LONGITUDE_DELTA = LATITUDE_DELTA * ASPECT_RATIO;
 
-export default ({ formDisplayed, setFormDisplay }) => {
+export default () => {
   const dispatch = useDispatch();
   const places = useSelector(placeSelector);
   const map = useSelector(mapSelector);
@@ -50,7 +50,14 @@ export default ({ formDisplayed, setFormDisplay }) => {
     };
     zoomToPoint(coordinate);
     dispatch({ type: "UPDATE_PLACES", payload: [...places.places, newMarker] });
-    setFormDisplay(true);
+    // setFormDisplay(true);
+    dispatch({ type: "SET_FORM_VISIBILITY", payload: true });
+  };
+  const popLastMarker = () => {
+    dispatch({
+      type: "UPDATE_PLACES",
+      payload: [...places.places.slice(0, places.places.length - 1)],
+    });
   };
   const handleZoom = useCallback(
     (inc: 1 | -1) => {
@@ -74,13 +81,17 @@ export default ({ formDisplayed, setFormDisplay }) => {
     zoomToPoint(places.places[map.focusIndex].coordinate);
   }, [map.focusIndex]);
 
+  useEffect(() => {
+    !map.formVisible && map.isEditing && popLastMarker();
+  }, [map.formVisible]);
+
   return (
     <View style={styles.map}>
-      <ZoomControl setZoom={handleZoom} />
+      {map.formVisible ? null : <ZoomControl setZoom={handleZoom} />}
       <MapView
         ref={mapRef}
         // provider={provider}
-        style={formDisplayed ? { width: "100%", height: "50%" } : styles.map}
+        style={map.formVisible ? { width: "100%", height: "25%" } : styles.map}
         initialCamera={{
           center: { latitude: region.latitude, longitude: region.longitude },
           zoom: 17,

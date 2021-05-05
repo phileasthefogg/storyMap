@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React from "react";
 import { Picker } from "@react-native-picker/picker";
 import styled from "styled-components";
 import { View as TView, Text as TText } from "../Themed";
@@ -6,35 +6,30 @@ import { View as TView, Text as TText } from "../Themed";
 interface IDropdown {
   options: string[];
   label: string;
+  onChange?: (...event: any[]) => void;
+  value?: string;
 }
 
 const Wrapper = styled(TView)`
   border-width: 0.5px;
-  height: ${({ theme }) => theme.layout.height / 12}px;
+  height: ${({ theme }) => theme.layout.height / 16}px;
 `;
 const Label = styled(TText)`
   color: grey;
   font-size: 10px;
 `;
 
-export const Dropdown = ({ options, label }: IDropdown) => {
-  const selectRef = useRef(null);
-  const [value, setValue] = useState("");
+export const Dropdown = ({ options, label, value, onChange }: IDropdown) => {
   return (
     <Wrapper>
       {/* {value ? null : <Label>{label}</Label>} */}
       <Picker
         selectedValue={value}
-        onValueChange={(itemValue, itemIndex) => setValue(itemValue)}
+        onValueChange={(itemValue, itemIndex) => onChange(itemValue)}
         style={{ height: "100%" }}
       >
         {options.map((opt, i) => (
-          <Picker.Item
-            key={`picker-item-${opt}`}
-            label={opt}
-            value={opt}
-            // style={{ height: "100%" }}
-          />
+          <Picker.Item key={`picker-item-${opt}`} label={opt} value={opt} />
         ))}
       </Picker>
     </Wrapper>

@@ -1,5 +1,5 @@
 import React, { forwardRef } from "react";
-import { TextInput } from "react-native";
+import { AutoGrowingTextInput } from "react-native-autogrow-textinput";
 import styled from "styled-components";
 import { Text as TText, View as TView } from "../Themed";
 
@@ -36,12 +36,13 @@ const Label = styled(TText)`
   font-size: 10px;
   align-self: center;
 `;
-const TInput = styled(TextInput)`
+const TInput = styled(AutoGrowingTextInput)`
   margin-vertical: 1%;
   padding-horizontal: 2%;
+  height: 100%;
 `;
 
-const Input = forwardRef(
+const TextArea = forwardRef(
   (
     {
       label,
@@ -66,11 +67,13 @@ const Input = forwardRef(
           ref={ref}
           onFocus={onFocus}
           onChangeText={onChange}
-          value={value}
+          maxHeight={40}
+          maxLines={8}
+          minHeight={40}
           {...props}
         ></TInput>
       </Wrapper>
     );
   }
 );
-export default Input;
+export default TextArea;

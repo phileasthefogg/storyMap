@@ -51,10 +51,12 @@ const MapMarkerList = () => {
 
   return (
     <>
-      <MapButton
-        onPress={toggleListVisibility}
-        text={map.listVisible ? "Hide" : "Show"}
-      />
+      {map.formVisible ? null : (
+        <MapButton
+          onPress={toggleListVisibility}
+          text={map.listVisible ? "Hide" : "Show"}
+        />
+      )}
       {map.listVisible ? (
         <List
           ref={listRef}
