@@ -1,16 +1,16 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { TouchableWithoutFeedback, Image } from "react-native";
 import styled from "styled-components";
 import { useNavigation } from "@react-navigation/native";
 import { View as TView, Text as TText } from "../Themed";
 import { TMarker } from "../../types";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { mapSelector } from "../../reducers/rootReducer";
 import { SharedElement } from "react-navigation-shared-element";
 
 interface IMapMarkerCard {
   item: TMarker;
-  handlePress: () => void;
-  isFocused: boolean;
+  index: number;
 }
 
 const Wrapper = styled(TView)<{ expanded: boolean }>`
@@ -42,17 +42,31 @@ const LearnMore = styled(TText)`
   color: blue;
 `;
 
-const MapMarkerCard = ({ item, handlePress, isFocused }: IMapMarkerCard) => {
+const MapMarkerCard = ({ item, index }: IMapMarkerCard) => {
   const [expanded, setExpanded] = useState<boolean>(false);
   const navigation = useNavigation();
   const dispatch = useDispatch();
+  const map = useSelector(mapSelector);
+  const onPress = useCallback(() => {
+    map.listExpanded && index === map.focusIndex
+      ? dispatch({ type: "SET_LIST_EXPAND", payload: false }) //collapse focused card
+      : index === map.focusIndex
+      ? dispatch({ type: "SET_LIST_EXPAND", payload: true }) //expand focused card
+      : dispatch({ type: "SET_FOCUS_IND", payload: index }) &&
+        dispatch({ type: "SET_LIST_EXPAND", payload: false }); //scroll to an unfocused card and collapse expansions
+  }, [map.focusIndex, map.listExpanded]);
+
+  useEffect(() => {
+    map.focusIndex !== index && setExpanded(false);
+  }, [map.focusIndex]);
+
   return (
     <SharedElement id={`shared-tile-${item.title}`}>
       <Wrapper expanded={expanded}>
         <TouchableWithoutFeedback
           onPress={() => {
-            handlePress && handlePress();
-            if (isFocused) {
+            onPress();
+            if (map.focusIndex === index) {
               if (!expanded) {
                 setExpanded(true);
               } else {
