@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { StyleSheet } from "react-native";
 import Layout from "../../constants/Layout";
 import { View } from "../Themed";
@@ -27,11 +27,17 @@ export default ({ formDisplayed, setFormDisplay }) => {
   });
   const [zoom, setZoom] = useState(17);
 
-  const zoomToPoint = (coordinate) => {
-    mapRef.current.animateCamera({ center: { ...coordinate }, zoom: 19 }, 500);
-    setRegion((r) => ({ ...r, ...coordinate }));
-    zoom !== 19 && setZoom(19);
-  };
+  const zoomToPoint = useCallback(
+    (coordinate) => {
+      mapRef.current.animateCamera(
+        { center: { ...coordinate }, zoom: 19 },
+        500
+      );
+      setRegion((r) => ({ ...r, ...coordinate }));
+      zoom !== 19 && setZoom(19);
+    },
+    [zoom]
+  );
   const createMarker = (coordinate) => {
     const newMarker = {
       coordinate: {
@@ -46,11 +52,23 @@ export default ({ formDisplayed, setFormDisplay }) => {
     dispatch({ type: "UPDATE_PLACES", payload: [...places.places, newMarker] });
     setFormDisplay(true);
   };
-  const handleZoom = (inc: 1 | -1) => {
-    const newZoom = zoom + inc;
-    mapRef.current.animateCamera({ zoom: newZoom }, { duration: 250 });
-    setZoom(newZoom);
-  };
+  const handleZoom = useCallback(
+    (inc: 1 | -1) => {
+      const newZoom = zoom + inc;
+      mapRef.current.animateCamera({ zoom: newZoom }, { duration: 250 });
+      setZoom(newZoom);
+    },
+    [zoom]
+  );
+
+  const handlePress = useCallback(
+    (e) => zoomToPoint(e.nativeEvent.coordinate),
+    []
+  );
+  const handleLongPress = useCallback(
+    (e) => createMarker(e.nativeEvent.coordinate),
+    []
+  );
 
   useEffect(() => {
     zoomToPoint(places.places[map.focusIndex].coordinate);
@@ -59,7 +77,6 @@ export default ({ formDisplayed, setFormDisplay }) => {
   return (
     <View style={styles.map}>
       <ZoomControl setZoom={handleZoom} />
-
       <MapView
         ref={mapRef}
         // provider={provider}
@@ -73,8 +90,8 @@ export default ({ formDisplayed, setFormDisplay }) => {
         }}
         initialRegion={region}
         zoomTapEnabled={true}
-        onPress={(e) => zoomToPoint(e.nativeEvent.coordinate)}
-        onLongPress={(e) => createMarker(e.nativeEvent.coordinate)}
+        onPress={handlePress}
+        onLongPress={handleLongPress}
       >
         {places.places.map((mark: any, i) => {
           return (

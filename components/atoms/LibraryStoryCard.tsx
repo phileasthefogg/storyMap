@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useCallback } from "react";
 import { Image, TouchableOpacity } from "react-native";
 import { TMarker } from "../../types";
 import { View as TView, Text as TText } from "../Themed";
@@ -58,18 +58,17 @@ const Content = styled(TView)<{ expanded: boolean }>`
 const LibraryStoryCard = ({ item }: ILibraryStoryCard) => {
   const navigation = useNavigation();
   const dispatch = useDispatch();
+  const handlePress = useCallback(() => {
+    dispatch({ type: "SET_PLACE_DETAIL", payload: item });
+    navigation.navigate("Detail", {
+      photo: `shared-photo-${item.id}`,
+      tile: `shared-tile-${item.title}`,
+      title: item.title,
+    });
+  }, []);
   return (
     <Wrapper>
-      <TouchableOpacity
-        onPress={() => {
-          dispatch({ type: "SET_PLACE_DETAIL", payload: item });
-          navigation.navigate("Detail", {
-            photo: `shared-photo-${item.id}`,
-            tile: `shared-tile-${item.title}`,
-            title: item.title,
-          });
-        }}
-      >
+      <TouchableOpacity onPress={handlePress}>
         <Header>
           <Photo
             style={{ flex: 1 }}
